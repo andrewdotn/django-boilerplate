@@ -1,0 +1,4 @@
+
+# django-boilerplate entries
+.secrets.json
+*.sqlite3
