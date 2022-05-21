@@ -1,0 +1,29 @@
+{% extends "polls/base.html" %}
+
+{% block content %}
+  <h2>Question #{{ object.id }}</h2>
+
+  <h3>{{ object.subject }}</h3>
+
+  <form method="POST" action="{% url 'polls:vote' object.id %}">
+  {% csrf_token %}
+  <ul>
+    {% for a in object.answer_set.all %}
+      <label>
+      <input name="answer_select" value="{{ a.id }}" type=radio> {{ a.subject }}
+      </label>
+      <br/>
+    {% empty %}
+      There aren’t yet any answers.
+    {% endfor %}
+  </ul>
+  <button type="submit">Vote</button>
+  </form>
+
+  <a href="{% url 'polls:results' object.id %}">View results</a>
+
+  {% if user.is_staff %}
+    <a href="{% url 'admin:polls_question_change' object.id %}">Edit in admin interface</a>
+  {% endif %}
+
+{% endblock %}

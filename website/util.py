@@ -11,7 +11,7 @@ def load_or_generate_secret_key():
     Instead of checking in an insecure key, use a local file to store it,
     automatically generating it if needed.
     """
-    secrets_file: Path = settings.BASE_DIR / '.secrets.json'
+    secrets_file: Path = settings.BASE_DIR / ".secrets.json"
     if not secrets_file.exists():
         secrets = {}
     else:
@@ -19,13 +19,11 @@ def load_or_generate_secret_key():
 
     # XXX There’s a potential race condition here if multiple django processes
     # all start up at once for the first time.
-    secret_key  = secrets.get('SECRET_KEY', None)
+    secret_key = secrets.get("SECRET_KEY", None)
     if secret_key is None:
-        secret_key  = get_random_secret_key()
+        secret_key = get_random_secret_key()
 
-        secrets['SECRET_KEY'] = secret_key
-        secrets_file.write_text(json.dumps(secrets, indent=True) + '\n')
+        secrets["SECRET_KEY"] = secret_key
+        secrets_file.write_text(json.dumps(secrets, indent=True) + "\n")
 
     return secret_key
-
-

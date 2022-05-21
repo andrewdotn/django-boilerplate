@@ -1,0 +1,19 @@
+{% extends "polls/base.html" %}
+
+{% block content %}
+  <h2>Question #{{ object.id }} Results</h2>
+
+  <h3>{{ object.subject }}</h3>
+
+  <table>
+    {% for a in object.answer_set.all %}
+      <tr>
+      <td>{{ a.vote_set.count }}</td>
+      <td>{{ a.subject }}</td>
+      </tr>
+    {% empty %}
+      There aren’t yet any answers.
+    {% endfor %}
+  </table>
+
+{% endblock %}
