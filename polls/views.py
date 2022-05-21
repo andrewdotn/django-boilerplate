@@ -24,12 +24,12 @@ def vote(request, pk):
     if form.is_valid():
         answer = form.cleaned_data["answer_select"]
         Vote.objects.create(answer=answer)
-        return redirect(reverse("polls:results", args=[pk]))
+        return redirect(reverse("polls:votes", args=[pk]))
 
     return redirect(reverse("polls:question_detail", args=[pk]))
 
 
-class QuestionResultsView(DetailView):
+class QuestionVotesView(DetailView):
     model = Question
 
-    template_name = "polls/question_results.html"
+    template_name = "polls/question_votes.html"

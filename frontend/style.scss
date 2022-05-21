@@ -1,0 +1,7 @@
+@import "bootstrap";
+
+// Bootstrap doesn’t do this by default :s
+// https://github.com/twbs/bootstrap/issues/2144
+a:visited {
+  color: purple;
+}

@@ -1,11 +1,11 @@
 {% extends "polls/base.html" %}
 
 {% block content %}
-  <h2>Question #{{ object.id }} Results</h2>
+  <h2 class="h3 text-muted d-inline-block me-2">Question #{{ object.id }}</h2>
+  <h3 class="h2 d-inline-block">{{ object.subject }}</h3>
+  <h3 class="mt-4">Votes</h3>
 
-  <h3>{{ object.subject }}</h3>
-
-  <table>
+  <table class="table table-striped table-hover table-sm">
     {% for a in object.answer_set.all %}
       <tr>
       <td>{{ a.vote_set.count }}</td>

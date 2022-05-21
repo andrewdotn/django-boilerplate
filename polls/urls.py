@@ -10,5 +10,5 @@ urlpatterns = [
     path("", views.QuestionListView.as_view(), name="question_list"),
     path("q/<int:pk>", views.QuestionDetailView.as_view(), name="question_detail"),
     path("q/<int:pk>/vote", views.vote, name="vote"),
-    path("q/<int:pk>/results", views.QuestionResultsView.as_view(), name="results"),
+    path("q/<int:pk>/votes", views.QuestionVotesView.as_view(), name="votes"),
 ]

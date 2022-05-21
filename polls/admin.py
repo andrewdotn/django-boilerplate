@@ -19,6 +19,9 @@ class AnswerAdmin(admin.ModelAdmin):
     list_display = ("question", "subject", "created_at", "vote_count")
     list_display_links = ("subject",)
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related("vote_set", "question")
+
 
 admin.site.register(models.Answer, AnswerAdmin)
 
