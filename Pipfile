@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 django = "*"
 
+# Only used for deploying with docker-compose
+uwsgi = "*"
+
 [dev-packages]
 black = "*"
 pytest = "*"

@@ -1,8 +1,10 @@
 .secrets.json
 *.sqlite3
+db
 frontend/.yarn
-frontend/dist
+frontend/static
 **/node_modules
+public/static
 
 .git
 .idea

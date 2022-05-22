@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  website:
+    build: .
+    ports:
+      - "127.0.0.1:8001:8001"
+    restart: unless-stopped
+    depends_on:
+      migrate:
+          condition: service_completed_successfully
+    volumes:
+      - type: bind
+        source: ./db
+        target: /app/db
+
+  migrate:
+    build: .
+    command:
+      - "sh"
+      - "-c"
+      - "sqlite3 db/prod.sqlite3 'PRAGMA journal_mode=WAL;' && .venv/bin/python manage.py migrate"
+    volumes:
+      - type: bind
+        source: ./db
+        target: /app/db
+
+  nginx:
+    image: nginx
+    profiles:
+      - nginx
+    ports:
+      - "127.0.0.1:8002:8002"
+    depends_on:
+      - website
+    volumes:
+      - type: bind
+        source: ./website.nginx.conf
+        target: /etc/nginx/conf.d/default.conf

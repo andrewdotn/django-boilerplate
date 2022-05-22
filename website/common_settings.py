@@ -9,10 +9,13 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
+import sys
+from copy import deepcopy
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+from django.utils.log import DEFAULT_LOGGING
+
 from website.util import load_or_generate_secret_key
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,12 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = load_or_generate_secret_key()
+SECRET_KEY = load_or_generate_secret_key(BASE_DIR)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-DEBUG_TOOLBAR = DEBUG
 
 ALLOWED_HOSTS = []
 INTERNAL_IPS = ["127.0.0.1"]
@@ -42,13 +41,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    *(["debug_toolbar"] if DEBUG_TOOLBAR else []),
     "website.frontend",
     "polls",
 ]
 
 MIDDLEWARE = [
-    *(["debug_toolbar.middleware.DebugToolbarMiddleware"] if DEBUG_TOOLBAR else []),
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -77,17 +74,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "website.wsgi.application"
-
-
-# Database
-# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
 
 
 # Password validation
@@ -126,13 +112,14 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+# The default
+STATICFILES_DIRS = []
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-## Other
+LOGGING = deepcopy(DEFAULT_LOGGING)
 
-DEBUG_TOOLBAR_CONFIG = {
-    "SHOW_COLLAPSED": True,
-}
+LOGGING["handlers"]["console"]["filters"].remove("require_debug_true")
