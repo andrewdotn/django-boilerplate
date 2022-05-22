@@ -1,0 +1,16 @@
+.secrets.json
+*.sqlite3
+frontend/.yarn
+frontend/dist
+**/node_modules
+
+.git
+.idea
+
+.pytest_cache
+**/__pycache__
+
+**/.gitignore
+
+# vim tmp files
+**/*.sw?
