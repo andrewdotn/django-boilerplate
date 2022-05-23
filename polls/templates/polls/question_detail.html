@@ -13,6 +13,10 @@
                  class="form-check-input" id="radio-{{ object.id }}-{{ a.id }}"
           ><label class="form-check-label" for="radio-{{ object.id }}-{{ a.id }}"
         >{{ a.subject }}
+          {% if a.image %}
+            <br/>
+            <img class="mt-1 mb-3" src="{{ a.image.url }}" width={{ a.image_width }} height={{ a.image_height }}>
+          {% endif %}
         </label>
         </div>
       {% empty %}

@@ -13,6 +13,9 @@ services:
       - type: bind
         source: ./db
         target: /app/db
+      - type: bind
+        source: ./media
+        target: /app/media
 
   migrate:
     build: .
@@ -24,6 +27,9 @@ services:
       - type: bind
         source: ./db
         target: /app/db
+      - type: bind
+        source: ./media
+        target: /app/media
 
   nginx:
     image: nginx

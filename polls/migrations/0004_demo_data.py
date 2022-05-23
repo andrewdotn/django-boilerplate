@@ -2,23 +2,7 @@
 
 from django.db import migrations
 
-DEFAULT_QUESTIONS = {
-    "What is your favourite colour?": [
-        "Red",
-        "Orange",
-        "Yellow",
-        "Green",
-        "Blue",
-        "Purple",
-    ],
-    "What is your favourite fruit?": [
-        "Apple",
-        "Pear",
-        "Strawberry",
-        "Kiwi",
-        "Pineapple",
-    ],
-}
+from polls.demo_data import DEFAULT_QUESTIONS
 
 
 def up(apps, schema_editor):
@@ -28,7 +12,7 @@ def up(apps, schema_editor):
     for q_subject, answers in DEFAULT_QUESTIONS.items():
         q, created = Question.objects.get_or_create(subject=q_subject)
         for a in answers:
-            Answer.objects.get_or_create(subject=a, question=q)
+            Answer.objects.get_or_create(question=q, subject=a)
 
 
 def down(apps, schema_editor):

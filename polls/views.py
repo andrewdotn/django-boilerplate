@@ -33,3 +33,6 @@ class QuestionVotesView(DetailView):
     model = Question
 
     template_name = "polls/question_votes.html"
+
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related("answer_set__vote_set")

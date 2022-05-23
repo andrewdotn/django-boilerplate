@@ -1,12 +1,8 @@
 from functools import cache
-from html import parser
 from html.parser import HTMLParser
-from urllib.parse import urljoin
 
 from django import template
 from django.conf import settings
-from django.contrib import staticfiles
-from django.utils import safestring
 from django.utils.safestring import mark_safe
 
 register = template.Library()

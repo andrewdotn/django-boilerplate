@@ -42,10 +42,12 @@ COPY --from=frontend-builder static/dist frontend/static/dist
 
 ENV DJANGO_SETTINGS_MODULE=website.prod_settings
 
-RUN .venv/bin/python manage.py collectstatic
+ENV PATH=/app/.venv/bin:${PATH}
+
+RUN ./manage.py collectstatic
 
 ENTRYPOINT ["tini", "--"]
 
-CMD .venv/bin/uwsgi --uwsgi-socket=0.0.0.0:8001 \
+CMD uwsgi --uwsgi-socket=0.0.0.0:8001 \
     --need-app --wsgi-file=website/wsgi.py \
-    --check-static public
+    --check-static public --static-map=/media=media

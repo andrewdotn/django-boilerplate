@@ -3,7 +3,6 @@ from .util import insert_app_after_django_apps
 
 DEBUG = True
 
-
 ## Database
 
 # Database
