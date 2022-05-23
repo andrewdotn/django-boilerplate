@@ -9,6 +9,9 @@ frontend/static
 **/node_modules
 public/static
 
+# for testing tls
+web-tls.pem
+
 .git
 **/.gitignore
 .idea

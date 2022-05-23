@@ -66,6 +66,7 @@ the included `website.nginx.conf`.
   - 8001: uwsgi listener for docker container
   - 8002: nginx frontend when doing dev/testing on uwsgi setup; start with
     `docker-compose --profile=nginx up nginx`
+  - 8003: tls port for nginx frontend tests
 
 ## License
 
