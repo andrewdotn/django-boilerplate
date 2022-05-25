@@ -89,7 +89,7 @@ While there a few other options available such as using filesystem ACLs,
 uid mapping, and rootless docker, this repo chooses to use traditional unix
 users and groups.
 
-The following users and groups are used
+The following users and groups are used here:
 
   - A `website-build` user
 
@@ -97,22 +97,19 @@ The following users and groups are used
 
   - A `website-run` user
 
-    DB and media files created by the container will be owned by this user.
+    Database and media files created by the container will be owned by this
+    user.
 
-  - A `website-data` group which allows other users on the host to easily
-    read and write files.
+  - A `website-data` group which allows other users on the host to
+    inspect database and media files.
 
-    Set this up with something like
+For the data group ID, you can use the default somewhat-randomly selected
+one, 65942, or enter your own `DATA_GID` in the required places in
+`docker-compose.yml`. Either way, you will probably want to create a group
+entry on the host for the group ID so that `ls -l` shows the group owner:
 
-        $ sudo groupadd --gid 65942 website-data
-        $ sudo usermod -aG website-data $LOGNAME
-        $ sg website-data -c 'for D in db media;
-            do chgrp website-data "${D}" && chmod g+srwx "${D}";
-          done'
-
-Because `Dockerfile` syntax requires `ARG`s to be specified in each `FROM`
-block, the defaults are repeated many times there. However you can also
-override them in `docker-compose.yml` by changing them in two places.
+        sudo groupadd --gid 65942 website-data
+        sudo usermod -aG website-data $LOGNAME
 
 ### Ports used
 

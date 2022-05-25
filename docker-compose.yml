@@ -5,7 +5,7 @@ services:
     build:
       context: .
       #args:
-      #  RUN_UID: …
+      #  DATA_GID: …
     ports:
       - "127.0.0.1:8001:8001"
     restart: unless-stopped
@@ -24,8 +24,30 @@ services:
     build:
       context: .
       #args:
-      #  RUN_UID: …
+      #  DATA_GID: …
     command: python ./docker/migrate.py
+    depends_on:
+      set-dir-permissions:
+          condition: service_completed_successfully
+    volumes:
+      - type: bind
+        source: ./db
+        target: /app/db
+      - type: bind
+        source: ./media
+        target: /app/media
+
+  set-dir-permissions:
+    image: alpine
+    environment:
+      DATA_GID: 65942
+    command:
+      - sh
+      - -c
+      - |
+        for D in db media; do \
+          chgrp "$${DATA_GID}" /app/"$${D}" && chmod g+srwx /app/"$${D}"; \
+        done
     volumes:
       - type: bind
         source: ./db

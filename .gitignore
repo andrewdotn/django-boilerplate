@@ -5,5 +5,6 @@
 # don’t check in files collected/built from elsewhere
 /frontend/static
 /public/static
-/media/
+/media/*
+!/media/README.md
 /web-tls.pem
