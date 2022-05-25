@@ -27,6 +27,7 @@ def main():
 
     set_wal_mode(db_file)
     backup_database(db_file)
+    subprocess.check_call(["./manage.py", "check", "--deploy", "--fail-level=WARNING"])
     subprocess.check_call(["./manage.py", "migrate"])
 
 
