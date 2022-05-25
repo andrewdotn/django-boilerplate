@@ -2,7 +2,10 @@ version: "3"
 
 services:
   website:
-    build: .
+    build:
+      context: .
+      #args:
+      #  RUN_UID: …
     ports:
       - "127.0.0.1:8001:8001"
     restart: unless-stopped
@@ -18,11 +21,11 @@ services:
         target: /app/media
 
   migrate:
-    build: .
-    command:
-      - "sh"
-      - "-c"
-      - "sqlite3 db/prod.sqlite3 'PRAGMA journal_mode=WAL;' && .venv/bin/python manage.py migrate"
+    build:
+      context: .
+      #args:
+      #  RUN_UID: …
+    command: python ./docker/migrate.py
     volumes:
       - type: bind
         source: ./db

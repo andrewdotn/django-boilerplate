@@ -9,7 +9,7 @@ Some features:
 
   - There’s a modern packager set up for frontend work
 
-  - docker-compose setup suitable for deploying
+  - docker-compose setup suitable for deploying behind nginx
 
   - django-debug-toolbar is configured
 
@@ -18,9 +18,9 @@ Some features:
 
   - Media uploads are configured.
 
-    *Note*: there are many additional issues not handled by this
-    boilerplate to address for public-facing sites and/or sites that allow
-    uploads from untrusted users, such as:
+    *Note*: there are many additional issues, not handled by this
+    boilerplate, that need to be addressed for public-facing sites and/or
+    sites that allow uploads from untrusted users, such as:
 
       - an uploaded .html file can contain js can steal cookies and
         impersonate the site in other ways, so media uploads are generally
@@ -48,10 +48,10 @@ To get the frontend serving locally:
 As a deployment mechanism, this project supports running a single server
 instance in production, using docker-compose from a git checkout on linux.
 
-The expected setup is a machine somewhere (a vm on digitalocean, an pc
-you’re using as a server in your home or office) running nginx, already
-configured with https and everything, that serves up a number of backend
-sites by proxying.
+The expected setup is a machine somewhere (like a vm on a laptop, or on
+digitalocean, or a pc you’re using as a server in your home or office)
+running nginx, already configured with https and everything, that serves up
+a number of backend sites by proxying.
 
 You *should* be able to do:
 
@@ -59,6 +59,60 @@ You *should* be able to do:
 
 to get the uwsgi listener running, and then configure nginx somewhat like
 the included `website.nginx.conf`.
+
+Make sure that you edit `ALLOWED_HOSTS` in `website/prod_settings.py` or
+you’ll get a 400 Bad Request error when you try to view the site.
+
+### How to access `manage.py`
+
+Use the `migrate` init container.
+
+    docker-compose run migrate ./manage.py help
+
+If you try to run a shell in the `website` container, the init container
+will run as well, attempting migrations, which usually won’t be what you
+want.
+
+### UIDs
+
+Root in a docker container is generally really root on the host as well,
+which is a bit scary. This is noticeable on linux when a website creates
+files in the `db` or `media` folders that are owned by root. (On mac,
+docker-desktop hides this by (1) using mac files that are owned by the user
+running docker-desktop and (2) making whatever the current linux container
+is believe that it owns those files.)
+
+What user/group should own those files created on the host by the
+container?
+
+While there a few other options available such as using filesystem ACLs,
+uid mapping, and rootless docker, this repo chooses to use traditional unix
+users and groups.
+
+The following users and groups are used
+
+  - A `website-build` user
+
+    This should never make files on the host.
+
+  - A `website-run` user
+
+    DB and media files created by the container will be owned by this user.
+
+  - A `website-data` group which allows other users on the host to easily
+    read and write files.
+
+    Set this up with something like
+
+        $ sudo groupadd --gid 65942 website-data
+        $ sudo usermod -aG website-data $LOGNAME
+        $ sg website-data -c 'for D in db media;
+            do chgrp website-data "${D}" && chmod g+srwx "${D}";
+          done'
+
+Because `Dockerfile` syntax requires `ARG`s to be specified in each `FROM`
+block, the defaults are repeated many times there. However you can also
+override them in `docker-compose.yml` by changing them in two places.
 
 ### Ports used
 
