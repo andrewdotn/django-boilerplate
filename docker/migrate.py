@@ -48,9 +48,9 @@ def backup_database(db_file):
     Uses sqlite3 APIs to ensure copy is consistent.
     """
     time_str = time.strftime("%Y%m%d_%H%M%S_%z")
-    backup_file = db_file.with_suffix(f".bak.{time_str}.sqlite3")
+    backup_file = db_file.with_suffix(f".~bak.{time_str}.sqlite3")
 
-    most_recent_backup = get_most_recent_backup(db_file.with_suffix(".bak.*.sqlite3"))
+    most_recent_backup = get_most_recent_backup(db_file.with_suffix(".~bak.*.sqlite3"))
 
     tmp_backup_file = backup_file.with_suffix(".inprogress")
     _do_backup(db_file, tmp_backup_file)
