@@ -1,0 +1,6 @@
+/*.txt
+/LICENSE
+/.secrets.json
+scratch/
+*.pem
+*.sqlite3

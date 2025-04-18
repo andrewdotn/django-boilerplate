@@ -17,7 +17,7 @@ class CssAndJsParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         if tag == "script":
-            for (k, v) in attrs:
+            for k, v in attrs:
                 if k == "src":
                     self.js_links.append(v)
         elif tag == "link":
@@ -41,7 +41,7 @@ def determine_build_asset_names():
 @register.simple_tag()
 def frontend():
     if settings.DEBUG:
-        prefix = "http://localhost:3000"
+        prefix = f"http://localhost:{settings.FRONTEND_VITE_PORT}"
 
         return mark_safe(
             f"""

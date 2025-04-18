@@ -1,4 +1,4 @@
-FROM node:18-alpine AS frontend-builder
+FROM node:22-alpine AS frontend-builder
 
 # For the user setup script
 RUN apk update && apk add python3 && rm -rf /var/cache/apk/*
@@ -40,7 +40,7 @@ COPY --chown=${BUILD_USER} frontend .
 RUN node_modules/.bin/vite build
 
 
-FROM python:3.10-slim AS python-builder
+FROM python:3.13-slim AS python-builder
 
 # build-essential is needed for uwsgi
 RUN apt update && apt install -y build-essential && rm -rf /var/lib/apt/lists
@@ -68,19 +68,19 @@ RUN mkdir /app && chown ${BUILD_USER}:${BUILD_USER} /app
 WORKDIR /app
 USER ${BUILD_USER}
 
-RUN pip install pipenv
+RUN pip install uv
 
-ENV PATH=/home/${BUILD_USER}/.local/bin:${PATH}
+ENV PATH=/app/.venv/bin:${PATH}
 
 WORKDIR /app
 
-COPY Pipfile Pipfile.lock ./
+COPY pyproject.toml uv.lock ./
 
-RUN PIPENV_VENV_IN_PROJECT=1 pipenv sync
+RUN uv sync --frozen --no-dev
 
 
 
-FROM python:3.10-slim AS python-run
+FROM python:3.13-slim AS python-run
 
 RUN apt update && apt install -y \
     tini \

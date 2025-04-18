@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+
+"""
+Run both the frontend and backend dev servers wiith one script, that on ^C will
+stop both servers and any child processes they forked as well.
+"""
+import os
+import signal
+import subprocess
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from pathlib import Path
+from threading import Thread, Event
+
+PROJECT_DIR = Path(__file__).parent
+
+
+class Multiplex:
+    def __init__(self):
+        self.processes = []
+
+        # since we’re going to send a kill signal to our process group
+        # later, let’s make sure we are our own process group
+        os.setpgid(os.getpid(), os.getpid())
+
+    def add_process(self, process):
+        self.processes.append(process)
+
+    def start(self):
+        for p in self.processes:
+            p.start()
+
+    def close(self):
+        for p in self.processes:
+            p.send_signal(signal.SIGINT)
+
+        # we’re shutting down now anyway, so ignore further SIGINTs, especially
+        # since we’re going to send ourselves one shortly.
+        signal.signal(signal.SIGINT, print_signal)
+        # try to kill any child processes spawned by our child processes
+        os.kill(0, signal.SIGINT)
+
+        for p in self.processes:
+            try:
+                p.wait(1)
+            except subprocess.TimeoutExpired:
+                p.send_signal(signal.SIGTERM)
+
+
+def main():
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument(
+        "--port", help="Port number for django dev server", type=int, default=8000
+    )
+    args = parser.parse_args()
+
+    done_event = Event()
+
+    multiplex = Multiplex()
+
+    multiplex.add_process(
+        ChildProcess(
+            ["./manage.py", "runserver", str(args.port)],
+            done_event=done_event,
+        )
+    )
+    multiplex.add_process(
+        ChildProcess(
+            [
+                "yarn",
+                "vite",
+                "--clearScreen=false",
+                "--strictPort",
+                "--port",
+                str(determine_frontend_port()),
+            ],
+            done_event=done_event,
+            cwd=PROJECT_DIR / "frontend",
+        )
+    )
+
+    signal.signal(signal.SIGTERM, lambda *args: multiplex.close())
+
+    multiplex.start()
+
+    try:
+        done_event.wait()
+    except KeyboardInterrupt:
+        pass
+
+    multiplex.close()
+
+
+def print_signal(signum, frame):
+    signame = signal.Signals(signum).name
+    print(f"caught {signame} in {frame}")
+
+
+class ChildProcess:
+    def __init__(self, command, done_event, **popen_kwargs):
+        self.command = command
+        self.popen_kwargs = popen_kwargs
+        self.process = None
+        self.done_event = done_event
+
+    def start(self):
+        t = Thread(target=self._thread_target)
+        t.start()
+
+    def _thread_target(self):
+        try:
+            self.process = subprocess.Popen(self.command, **self.popen_kwargs)
+            self.process.wait()
+        finally:
+            if self.process:
+                print(
+                    self.process.pid,
+                    self.command,
+                    "exited",
+                    "with",
+                    self.process.returncode,
+                )
+            else:
+                print(f"failed to start {self.command}?")
+            self.done_event.set()
+
+    def wait(self, *args):
+        if self.process:
+            self.process.wait(*args)
+
+    def send_signal(self, signum):
+        if self.process:
+            self.process.send_signal(signum)
+
+
+def determine_frontend_port():
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "website.dev_settings")
+
+    import django
+
+    django.setup()
+    from django.conf import settings
+
+    return settings.FRONTEND_VITE_PORT
+
+
+if __name__ == "__main__":
+    main()
