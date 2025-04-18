@@ -51,7 +51,14 @@ def main():
     parser.add_argument(
         "--port", help="Port number for django dev server", type=int, default=8000
     )
+    parser.add_argument(
+        "--frontend-port", help="Port number for vite frontend dev server", default=None
+    )
     args = parser.parse_args()
+
+    frontend_folder = PROJECT_DIR / "frontend"
+    if not (frontend_folder / "node_modules").exists():
+        subprocess.check_call(["yarn"], cwd=frontend_folder)
 
     done_event = Event()
 
@@ -71,10 +78,10 @@ def main():
                 "--clearScreen=false",
                 "--strictPort",
                 "--port",
-                str(determine_frontend_port()),
+                str(determine_frontend_port(args.frontend_port)),
             ],
             done_event=done_event,
-            cwd=PROJECT_DIR / "frontend",
+            cwd=frontend_folder,
         )
     )
 
@@ -132,13 +139,17 @@ class ChildProcess:
             self.process.send_signal(signum)
 
 
-def determine_frontend_port():
+def determine_frontend_port(supplied_frontend_port):
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "website.dev_settings")
 
     import django
 
     django.setup()
     from django.conf import settings
+
+    if supplied_frontend_port is not None:
+        supplied_frontend_port = int(supplied_frontend_port)
+        settings.FRONTEND_VITE_PORT = supplied_frontend_port
 
     return settings.FRONTEND_VITE_PORT
 

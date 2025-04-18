@@ -39,9 +39,12 @@ Some features:
 Clone the repo and start coding. You can remove, copy, or rename the
 `polls` app; it’s there as a helpful starting point.
 
-To get the frontend serving locally:
+To get it running:
 
-    cd frontend && yarn && yarn vite
+    uv sync
+    . .venv/bin/activate
+    ./manage.py migrate
+    ./run
 
 ## Deployment
 
@@ -57,8 +60,10 @@ You *should* be able to do:
 
     docker-compose up --build
 
-to get the uwsgi listener running, and then configure nginx somewhat like
-the included `website.nginx.conf`.
+to get the uwsgi listener running, and then configure the system nginx
+somewhat like the included `website.nginx.conf`. The nginx container in
+`docker-compose.yml` is meant for local testing and is off by default but
+you can start it with `docker compose --profile nginx up`.
 
 Make sure that you edit `ALLOWED_HOSTS` in `website/prod_settings.py` or
 you’ll get a 400 Bad Request error when you try to view the site.

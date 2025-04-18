@@ -23,3 +23,5 @@ web-tls.pem
 
 # vim tmp files
 **/*.sw?
+
+/.venv/

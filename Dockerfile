@@ -30,7 +30,7 @@ RUN mkdir /build && chown ${BUILD_USER}:${BUILD_USER} /build
 WORKDIR /build
 USER ${BUILD_USER}
 
-COPY frontend/package.json frontend/yarn.lock ./
+COPY frontend/package.json frontend/yarn.lock frontend/.yarnrc.yml ./
 
 ENV PATH=/build/.yarn/bin:${PATH}
 ENV YARN_NODE_LINKER=node-modules
@@ -70,7 +70,7 @@ USER ${BUILD_USER}
 
 RUN pip install uv
 
-ENV PATH=/app/.venv/bin:${PATH}
+ENV PATH=/home/${BUILD_USER}/.local/bin:${PATH}
 
 WORKDIR /app
 
