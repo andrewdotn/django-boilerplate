@@ -41,6 +41,7 @@ RUN node_modules/.bin/vite build
 
 
 FROM python:3.13-slim AS python-builder
+ENV LC_CTYPE=C.utf8
 
 # build-essential is needed for uwsgi
 RUN apt update && apt install -y build-essential && rm -rf /var/lib/apt/lists
@@ -81,6 +82,8 @@ RUN uv sync --frozen --no-dev
 
 
 FROM python:3.13-slim AS python-run
+ENV LC_CTYPE=C.utf8
+
 
 RUN apt update && apt install -y \
     tini \
