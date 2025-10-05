@@ -7,6 +7,7 @@ RUN apk update && apk add python3 && rm -rf /var/cache/apk/*
 RUN yarn global add @yarnpkg/cli-dist
 ENV PATH=/build/.yarn/bin:${PATH}
 
+
 ## This block has to be copied into every FROM section but you can override
 ## all instances at once using args in docker-compose.yml
 #
@@ -25,6 +26,7 @@ RUN python3 /tmp/user_setup.py \
     --run-user=${RUN_USER} --run-uid=${RUN_UID} \
     --data-group=${DATA_GROUP} --data-gid=${DATA_GID} \
     && rm /tmp/user_setup.py
+
 
 RUN mkdir /build && chown ${BUILD_USER}:${BUILD_USER} /build
 WORKDIR /build
@@ -40,11 +42,13 @@ COPY --chown=${BUILD_USER} frontend .
 RUN node_modules/.bin/vite build
 
 
+##
 FROM python:3.13-slim AS python-builder
 ENV LC_CTYPE=C.utf8
 
 # build-essential is needed for uwsgi
 RUN apt update && apt install -y build-essential && rm -rf /var/lib/apt/lists
+
 
 ## This block has to be copied into every FROM section but you can override
 ## all instances at once using args in docker-compose.yml
@@ -65,6 +69,7 @@ RUN python3 /tmp/user_setup.py \
     --data-group=${DATA_GROUP} --data-gid=${DATA_GID} \
     && rm /tmp/user_setup.py
 
+
 RUN mkdir /app && chown ${BUILD_USER}:${BUILD_USER} /app
 WORKDIR /app
 USER ${BUILD_USER}
@@ -77,18 +82,19 @@ WORKDIR /app
 
 COPY pyproject.toml uv.lock ./
 
-RUN uv sync --frozen --no-dev
+RUN --mount=type=cache,target=/home/${BUILD_USER}/.cache/uv,uid=${BUILD_UID} \
+    uv sync --frozen --no-dev
 
 
-
+##
 FROM python:3.13-slim AS python-run
 ENV LC_CTYPE=C.utf8
 
-
 RUN apt update && apt install -y \
-    tini \
     media-types `# for uwsgi static serving` \
+    procps ` # for ps(1)` \
     sqlite3 `# for maintenance, init` \
+    tini \
     && rm -rf /var/lib/apt/lists
 
 
@@ -111,6 +117,7 @@ RUN python3 /tmp/user_setup.py \
     --data-group=${DATA_GROUP} --data-gid=${DATA_GID} \
     && rm /tmp/user_setup.py
 
+
 RUN mkdir /app && chown ${BUILD_USER}:${BUILD_USER} /app
 WORKDIR /app
 USER ${BUILD_USER}
@@ -125,7 +132,9 @@ COPY --from=frontend-builder /build/static/dist frontend/static/dist
 
 ENV DJANGO_SETTINGS_MODULE=website.prod_settings
 
-RUN ./manage.py collectstatic
+RUN ./manage.py collectstatic \
+    && find public/static -type f \! -perm /o+r -print0 \
+        | xargs -0 chmod o+r
 
 USER ${RUN_USER}
 

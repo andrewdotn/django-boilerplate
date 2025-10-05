@@ -6,6 +6,7 @@ services:
       #  DATA_GID: …
     ports:
       - "127.0.0.1:8001:8001"
+    read_only: true
     restart: unless-stopped
     depends_on:
       migrate:
@@ -14,9 +15,13 @@ services:
       - type: bind
         source: ./db
         target: /app/db
+        bind:
+          create_host_path: false
       - type: bind
         source: ./media
         target: /app/media
+        bind:
+          create_host_path: false
 
   migrate:
     build:
@@ -24,6 +29,7 @@ services:
       #args:
       #  DATA_GID: …
     command: python ./docker/migrate.py
+    read_only: true
     depends_on:
       set-dir-permissions:
           condition: service_completed_successfully
@@ -31,9 +37,13 @@ services:
       - type: bind
         source: ./db
         target: /app/db
+        bind:
+          create_host_path: false
       - type: bind
         source: ./media
         target: /app/media
+        bind:
+          create_host_path: false
 
   set-dir-permissions:
     image: alpine
@@ -41,18 +51,23 @@ services:
       DATA_GID: 65942
     command:
       - sh
-      - -c
+      - -ec
       - |
         for D in db media; do \
           chgrp "$${DATA_GID}" /app/"$${D}" && chmod g+srwx /app/"$${D}"; \
         done
+    read_only: true
     volumes:
       - type: bind
         source: ./db
         target: /app/db
+        bind:
+          create_host_path: false
       - type: bind
         source: ./media
         target: /app/media
+        bind:
+          create_host_path: false
 
   nginx:
     image: nginx
@@ -61,12 +76,17 @@ services:
     ports:
       - "127.0.0.1:8002:8002"
       - "127.0.0.1:8003:8003"
+    read_only: true
     depends_on:
       - website
     volumes:
       - type: bind
         source: ./website.nginx.conf
         target: /etc/nginx/conf.d/default.conf
+        bind:
+          create_host_path: false
       - type: bind
         source: ./web-tls.pem
         target: /etc/web-tls.pem
+        bind:
+          create_host_path: false
