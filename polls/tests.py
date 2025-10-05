@@ -1,4 +1,3 @@
-import pytest
 from django.db.models import Max
 from django.test import Client
 from django.urls import reverse
@@ -30,7 +29,7 @@ def test_vote_ignored_if_question_and_answer_id_dont_match(db):
     response = client.post(
         reverse("polls:vote", args=[q1.id]), data={"answer_select": b1.id}
     )
-    print(response.status_code)
+    assert response.status_code == 302
     assert a1.vote_count() == 0
     assert b1.vote_count() == 0
 

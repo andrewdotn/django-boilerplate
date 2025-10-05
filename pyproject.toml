@@ -9,6 +9,8 @@ dependencies = [
 ]
 
 [tool.pytest.ini_options]
+addopts = "-s"
+log_cli = true
 DJANGO_SETTINGS_MODULE = "website.dev_settings"
 python_files = ["tests.py", "test_*.py", "*_test.py"]
 

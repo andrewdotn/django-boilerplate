@@ -27,7 +27,6 @@ def answer_image_upload_to(instance, filename):
     allowed_extensions = [".jpg", ".gif", ".png"]
 
     if ext.lower() not in allowed_extensions:
-        print(f"got {ext!r}")
         raise Http404(
             f"Invalid filename extension on {filename!r}: must be in {allowed_extensions}"
         )

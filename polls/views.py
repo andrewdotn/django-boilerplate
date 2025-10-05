@@ -20,7 +20,6 @@ def vote(request, pk):
     question = get_object_or_404(Question, pk=pk)
 
     form = VoteForm(request.POST, question=question)
-    print("form is", form)
     if form.is_valid():
         answer = form.cleaned_data["answer_select"]
         Vote.objects.create(answer=answer)

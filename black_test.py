@@ -22,5 +22,4 @@ def test_code_formatted_with_black():
                     add_item(f)
                     break
 
-    print(things_to_check)
     subprocess.check_call(["black", "--check", *things_to_check], cwd=PROJECT_DIR)
