@@ -133,8 +133,10 @@ COPY --from=frontend-builder /build/static/dist frontend/static/dist
 ENV DJANGO_SETTINGS_MODULE=website.prod_settings
 
 RUN ./manage.py collectstatic \
-    && find public/static -type f \! -perm /o+r -print0 \
-        | xargs -0 chmod o+r
+    && if find public/static -type f \! -perm /o+r -printf x | grep -q x; then \
+        find public/static -type f \! -perm /o+r -print0 \
+            | xargs -0 chmod o+r ; \
+    fi
 
 USER ${RUN_USER}
 
