@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es2024",
+    "useDefineForClassFields": true,
+    "lib": ["ES2025", "ESNext", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "module": "ESNext",
+    "isolatedModules": true,
+    "noEmit": true,
+    "strict": true
+  }
+}

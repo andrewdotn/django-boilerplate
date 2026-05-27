@@ -1,9 +1,13 @@
+import base64
+import json
 import os.path
 
 from django.db import models
-from django.db.models import CASCADE
+from django.db.models import CASCADE, Count
 from django.http import Http404
 from django.utils.crypto import get_random_string
+
+from website.util_test import json_base64
 
 DEFAULT_MAX_LENGTH = 255
 
@@ -18,6 +22,15 @@ class Question(models.Model):
 
     def __str__(self):
         return self.subject
+
+    def vote_set_json_base64(self):
+        return json_base64(
+            list(
+                self.answer_set.annotate(vote_count=Count("vote")).values_list(
+                    "subject", "vote_count"
+                )
+            )
+        )
 
 
 def answer_image_upload_to(instance, filename):

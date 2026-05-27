@@ -16,4 +16,10 @@
     {% endfor %}
   </table>
 
+  <div class="question_votes__chart">
+  <script class="question_votes__chart_data" type="text/plain">
+  {{ object.vote_set_json_base64 }}
+  </script>
+  </div>
+
 {% endblock %}

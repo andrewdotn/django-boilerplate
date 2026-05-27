@@ -1,8 +1,11 @@
+import base64
+import json
+
 from django.db.models import Max
 from django.test import Client
 from django.urls import reverse
 
-from polls.models import Question, Answer
+from polls.models import Question, Answer, Vote
 
 
 def test_voting(db):
@@ -42,3 +45,15 @@ def test_voting_gives_404_when_question_id_invalid(db):
         reverse("polls:vote", args=[invalid_id]), data={"answer_select": 12}
     )
     assert response.status_code == 404
+
+
+def test_votes_json_base64_response(db):
+    q = Question.objects.create(subject="q")
+    for i, x in enumerate("abc"):
+        answer = Answer.objects.create(question=q, subject=x)
+        for j in range(i + 1):
+            Vote.objects.create(answer=answer)
+
+    assert [["a", 1], ["b", 2], ["c", 3]] == json.loads(
+        base64.b64decode(q.vote_set_json_base64().encode("US-ASCII")).decode("UTF-8")
+    )

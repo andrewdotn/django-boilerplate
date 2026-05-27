@@ -6,6 +6,10 @@ a:visited {
   color: purple;
 }
 
+/* exposing some bootstrap scss vars as css vars */
+:root {
+  --gray-400: #{$gray-400};
+}
 
 /*
 Some handy styles if not using bootstrap:
