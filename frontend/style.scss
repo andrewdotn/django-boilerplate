@@ -5,3 +5,22 @@
 a:visited {
   color: purple;
 }
+
+
+/*
+Some handy styles if not using bootstrap:
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: unset;
+}
+
+:root {
+  font-size: clamp(0.75rem, 0.2rem + 2svw, 1rem);
+}
+*/
