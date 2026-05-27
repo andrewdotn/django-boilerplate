@@ -7,8 +7,13 @@
     "sass": "^1.52.1",
     "vite": "^2.9.9"
   },
+  "dependenciesMeta": {
+    "esbuild": {
+      "built": true
+    }
+  },
   "volta": {
-    "node": "22.14.0",
-    "yarn": "4.9.1"
+    "node": "26.2.0",
+    "yarn": "4.15.0"
   }
 }

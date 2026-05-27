@@ -22,6 +22,11 @@ services:
         target: /app/media
         bind:
           create_host_path: false
+# for certain file uploads to work
+#      - type: tmpfs
+#        target: /tmp
+#        tmpfs:
+#          size: 1_000_000_000
 
   migrate:
     build:
@@ -90,3 +95,7 @@ services:
         target: /etc/web-tls.pem
         bind:
           create_host_path: false
+      - type: tmpfs
+        target: /var/cache/nginx
+      - type: tmpfs
+        target: /var/run

@@ -1,11 +1,13 @@
-FROM node:22-alpine AS frontend-builder
+FROM node:26-alpine AS frontend-builder
 
 # For the user setup script
 RUN apk update && apk add python3 && rm -rf /var/cache/apk/*
 
-# Use yarn v2+, not default yarn v1
-RUN yarn global add @yarnpkg/cli-dist
-ENV PATH=/build/.yarn/bin:${PATH}
+COPY frontend/package.json /tmp
+RUN YARN_VERSION="$(node -e "const p = require('/tmp/package.json'); console.log(p.volta.yarn)")" \
+    npm -g add @yarnpkg/cli-dist@$YARN_VERSION
+# installs to /usr/local/bin
+RUN rm /tmp/package.json
 
 
 ## This block has to be copied into every FROM section but you can override
@@ -32,22 +34,23 @@ RUN mkdir /build && chown ${BUILD_USER}:${BUILD_USER} /build
 WORKDIR /build
 USER ${BUILD_USER}
 
-COPY frontend/package.json frontend/yarn.lock frontend/.yarnrc.yml ./
+COPY --chown=${BUILD_USER} frontend/package.json frontend/yarn.lock frontend/.yarnrc.yml ./
 
-ENV PATH=/build/.yarn/bin:${PATH}
-ENV YARN_NODE_LINKER=node-modules
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 
 COPY --chown=${BUILD_USER} frontend .
 RUN node_modules/.bin/vite build
 
 
 ##
-FROM python:3.13-slim AS python-builder
+FROM python:3.14-slim AS python-builder
 ENV LC_CTYPE=C.utf8
 
 # build-essential is needed for uwsgi
-RUN apt update && apt install -y build-essential && rm -rf /var/lib/apt/lists
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    rm -f /etc/apt/apt.conf.d/docker-clean \
+    && apt update && apt install -y build-essential
 
 
 ## This block has to be copied into every FROM section but you can override
@@ -87,7 +90,7 @@ RUN --mount=type=cache,target=/home/${BUILD_USER}/.cache/uv,uid=${BUILD_UID} \
 
 
 ##
-FROM python:3.13-slim AS python-run
+FROM python:3.14-slim AS python-run
 ENV LC_CTYPE=C.utf8
 
 RUN apt update && apt install -y \
