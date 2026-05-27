@@ -6,8 +6,8 @@ DEBUG_TOOLBAR = False
 
 # You’ll want to configure this.
 ALLOWED_HOSTS = ["website.example.com"]
-#ADMINS = [("name", "root@example.com")]
-#EMAIL_HOST = "mail.example.com"
+# ADMINS = [("name", "root@example.com")]
+# EMAIL_HOST = "mail.example.com"
 
 STATIC_ROOT = BASE_DIR / "public" / "static"
 

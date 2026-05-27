@@ -6,6 +6,7 @@ Set up users for website container.
 This was a bit too much logic to jam inline into a Dockerfile, so it’s been
 wrapped in a script.
 """
+
 import os.path
 import subprocess
 from argparse import ArgumentParser

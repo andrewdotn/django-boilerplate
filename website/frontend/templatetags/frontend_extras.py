@@ -43,13 +43,11 @@ def frontend():
     if settings.DEBUG:
         prefix = f"http://localhost:{settings.FRONTEND_VITE_PORT}"
 
-        return mark_safe(
-            f"""
+        return mark_safe(f"""
             <script type="module" src="{prefix}/@vite/client"></script>
             <link rel="stylesheet" href="{prefix}/style.scss">
             <script async type="module" src="{prefix}/index.ts"></script>
-            """
-        )
+            """)
 
     prefix_url = "/static/dist"
 

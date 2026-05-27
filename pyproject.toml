@@ -16,6 +16,7 @@ python_files = ["tests.py", "test_*.py", "*_test.py"]
 
 [tool.black]
 extend-exclude = "node_modules"
+target-version = ['py314']
 
 [dependency-groups]
 dev = [
